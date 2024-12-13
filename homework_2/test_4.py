@@ -15,12 +15,19 @@ def test_4():
     client = Client(nodes)
     time.sleep(5)
     nodes[0].stop()
-    time.sleep(5)
+    time.sleep(6)
     client.add_value('aaa', "AAAAA")
-    time.sleep(5)
+    client.add_value('c', "CCC")
+    client.add_value('d', "DDD")
+    client.add_value('e', "EEE")
+    client.delete_value('c')
+    client.delete_value('aaa')
     nodes[0].start()
     time.sleep(5)
-
+    print()
+    print(client.get_value('d'))
+    print(client.get_value('aaa'))
+    print()
     for node in nodes:
         node.stop()
 

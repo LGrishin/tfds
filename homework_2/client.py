@@ -63,6 +63,7 @@ class Client:
         message = {
             'msg_type': 'user_request',
             'operation_type': 'get',
+            'redirected': False,
             'key': key,
             'user_port': self.port,
             'msg_id': self.msg_id,
@@ -103,3 +104,4 @@ class Client:
             if self.node_is_alive(node_port):
                 self.send_message(message, node_port)
                 break
+            

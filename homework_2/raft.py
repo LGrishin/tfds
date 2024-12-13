@@ -8,7 +8,7 @@ class Node:
         self.data_store = {}
         self.nodes_count = nodes_count
         self.context = zmq.Context()
-
+        self.msg_count = 0
         # консенсус
         self.type = 'follower'
         self.era = 0
@@ -81,9 +81,6 @@ class Node:
                     self.election()
                 if self.type == 'leader':
                     self.broadcast_replicate_log()
-                # for followerId in range(self.nodes_count):
-                #     if followerId != self.node_id:
-                #         self.replicate_log(self.node_id, followerId)
         self.socket.close()
     
     def send_message(self, message, port):
@@ -116,6 +113,29 @@ class Node:
             elif self.type == 'follower' and self.leader_id is not None:
                 self.send_message(message, self.leader_id + 5555)
         elif message['operation_type'] == 'get':
+            if self.type == 'leader':
+                self.msg_count += 1
+                message['redirected'] = True
+                dst_id = None
+                dst_ids = []
+                for node_id in range(self.nodes_count):
+                    if node_id == self.node_id or self.commit_length != self.sent_length[node_id]:
+                        continue
+                    dst_ids.append(node_id)
+                
+                # print(f'good nodes is {dst_ids}')
+                
+                if len(dst_ids) > 0:
+                    dst_id = self.msg_count % len(dst_ids)
+                if dst_id is not None:
+                    self.send_message(message, dst_id + 5555)
+                    return
+                
+            if message['redirected'] == False:
+                self.send_message(message, self.leader_id + 5555)
+                return
+            
+            # print(f'Node {self.node_id} recive final user get request')
             user_response = {
                 'msg_type': 'user_response',
                 'response_type': 'get',

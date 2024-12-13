@@ -19,7 +19,11 @@ def test_1():
     time.sleep(2)
     client.delete_value('aaa')
     time.sleep(2)
-    print(client.get_value('aaa'))
+    print(client.get_value('bbb'))
+    print(client.get_value('ccc'))
+    print(client.get_value('bbb'))
+    print(client.get_value('ccc'))
+    time.sleep(2)
     
     for node in nodes:
         node.stop()
