@@ -101,9 +101,10 @@ class Node:
             }
             self.send_message(user_response, message['user_port'])
             return
-
-        if message['operation_type'] == 'push' or message['operation_type'] == 'delete':
-            
+        
+        msg_otype = message['operation_type']
+        
+        if msg_otype == 'push' or msg_otype == 'delete':
             if self.type == 'leader':
                 message['era'] = self.era
                 self.log.append(message)
@@ -112,7 +113,23 @@ class Node:
                 self.broadcast_replicate_log()
             elif self.type == 'follower' and self.leader_id is not None:
                 self.send_message(message, self.leader_id + 5555)
-        elif message['operation_type'] == 'get':
+                
+        elif msg_otype == 'put':
+            if self.type == 'leader':
+                message['era'] = self.era
+                key = message['key']
+                                
+                if key not in self.data_store:
+                    return
+                
+                self.log.append(message)
+                self.acked_length[self.node_id] = len(self.log)
+                # print(f'Node {self.node_id} ({self.type}) recive user request msg = {message})')
+                self.broadcast_replicate_log()
+            elif self.type == 'follower' and self.leader_id is not None:
+                self.send_message(message, self.leader_id + 5555)
+                
+        elif msg_otype == 'get':
             if self.type == 'leader':
                 self.msg_count += 1
                 message['redirected'] = True
@@ -331,6 +348,10 @@ class Node:
     def execute_entry(self, message):
         key = message['key']
         if message['operation_type'] == 'push':
+            value = message['value']
+            self.data_store[key] = value
+        elif message['operation_type'] == 'put':
+            assert(key in self.data_store)
             value = message['value']
             self.data_store[key] = value
         elif message['operation_type'] == 'delete':

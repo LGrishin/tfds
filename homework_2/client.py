@@ -104,4 +104,19 @@ class Client:
             if self.node_is_alive(node_port):
                 self.send_message(message, node_port)
                 break
-            
+    
+    def put(self, key, new_value):
+        print(f'Clietn put value for key {key} and new value is {new_value}')
+        message = {
+            'msg_type': 'user_request',
+            'key': key,
+            'value': new_value,
+            'operation_type': 'put',
+            'user_port': self.port,
+        }
+        
+        for node_id in range(len(self.nodes)):
+            node_port = node_id + 5555
+            if self.node_is_alive(node_port):
+                self.send_message(message, node_port)
+                break
