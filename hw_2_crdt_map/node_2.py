@@ -52,7 +52,8 @@ class Node:
     def get_data_storage(self):
         result = {}
         for key, value in self.data_store.items():
-            result[key] = value['data']
+            if value['data'] is not None:
+                result[key] = value['data']
         return result
     
     def new_timestamp(self):
@@ -151,17 +152,19 @@ class Node:
             new_value = operation.get("value", '')
             if action == 'update':
                 action = 'add'
+                
             if action == "delete":
                 if key in self.data_store:
                     new_request = {'timestamp': message['timestamp'], 'sender_id': message['sender_id']}
                     curr_state = {'timestamp': self.data_store[key]['timestamp'], 'sender_id': self.data_store[key]['sender_id']}
                     if self.resolve_conflict(new_request, curr_state):
-                        del self.data_store[key]
+                        self.data_store[key] = {'data': None, 'timestamp': message['timestamp'], 'sender_id': message['sender_id']}
                         response_messages.append({"message": "Key deleted", "key": key})
                     else:
                         response_messages.append({"message": "Ignored"})
 
                 else:
+                    self.data_store[key] = {'data': None, 'timestamp': message['timestamp'], 'sender_id': message['sender_id']}
                     response_messages.append({"message": "Key not found", "key": key})
 
             elif action == "add":
