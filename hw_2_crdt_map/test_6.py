@@ -1,4 +1,4 @@
-from node import Node
+from node import Node, wait_consistency
 from client import Client
 import time
 
@@ -57,7 +57,7 @@ def test_6():
         {'operation': 'delete', 'key': 'aaaa'},
     ]
     client.patch(operations, 8082)
-    time.sleep(15)
+    wait_consistency(nodes)
 
     d1 = nodes[0].get_data_storage()
     d2 = nodes[1].get_data_storage()
