@@ -48,11 +48,12 @@ def test_3():
     time.sleep(3)
     d1 = nodes[0].get_data_storage()
     d2 = nodes[1].get_data_storage()
-    assert d1 == d2
-    assert d1 == {'bbbb': 'b', 'aaa': 'VVV'}
     # print(d1)
     # for node_id in range(len(nodes)):
     #     print(f'Node {node_id} data store is {nodes[node_id].data_store}')
+
+    assert d1 == d2
+    assert d1 == {'bbbb': 'b', 'aaa': 'VVV'}
     assert client.get('aaa', 8081) == 'VVV'
     time.sleep(0.5)
     print('Test 3 passed')
