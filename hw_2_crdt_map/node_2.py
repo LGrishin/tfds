@@ -213,7 +213,8 @@ class Node:
             key = self.path[1:]  # get key
             with self.node_instance.lock:
                 value = self.node_instance.data_store.get(key, "Key not found")
-                value = value['data']
+                if value['data'] is not None:
+                    value = value['data']
                 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
